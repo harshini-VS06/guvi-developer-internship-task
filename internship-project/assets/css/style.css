@@ -1,0 +1,270 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap');
+
+/* ===================================
+   GUVI INTERNSHIP PORTAL - MASTER CSS
+   =================================== */
+
+:root {
+    --guvi-green: #00d166;
+    --guvi-darker: #00b357;
+    --guvi-dark-green: #008f45;
+    --guvi-nav-dark: #006b33;
+    --guvi-light-bg: #bfffd9;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ===================================
+   LOGIN & REGISTER PAGES
+   =================================== */
+
+body.page-login,
+body.page-register {
+    background-color: var(--guvi-light-bg);
+    height: 100vh;
+    margin: 0;
+    overflow: hidden;
+    position: relative;
+    font-family: 'Lato', 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Animated Stationery Frame */
+.stationery-frame {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.item-wrapper {
+    position: absolute;
+    animation: constantFloat 6s ease-in-out infinite;
+}
+
+.item {
+    display: inline-block;
+    opacity: 0.9;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: auto;
+}
+
+/* Green Color Palette */
+.g-1 { color: var(--guvi-green); }
+.g-2 { color: var(--guvi-darker); }
+.g-3 { color: var(--guvi-dark-green); }
+
+@keyframes constantFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+/* Position Classes for Stationery Items */
+.pos-1 { top: 8%; left: 5%; font-size: 5rem; animation-delay: 0s; }
+.pos-2 { top: 22%; left: 3%; font-size: 2.5rem; animation-delay: 1s; }
+.pos-3 { top: 4%; left: 18%; font-size: 3.5rem; animation-delay: 2s; }
+.pos-4 { top: 8%; right: 8%; font-size: 4rem; animation-delay: 0.5s; }
+.pos-5 { top: 25%; right: 4%; font-size: 2.5rem; animation-delay: 1.5s; }
+.pos-6 { top: 3%; right: 22%; font-size: 3rem; animation-delay: 2.5s; }
+.pos-7 { bottom: 10%; left: 8%; font-size: 6rem; animation-delay: 0.2s; }
+.pos-8 { bottom: 28%; left: 4%; font-size: 2rem; animation-delay: 1.2s; }
+.pos-9 { bottom: 6%; left: 24%; font-size: 4rem; animation-delay: 2.2s; }
+.pos-10 { bottom: 12%; right: 10%; font-size: 5rem; animation-delay: 0.7s; }
+.pos-11 { bottom: 30%; right: 5%; font-size: 2.5rem; animation-delay: 1.7s; }
+.pos-12 { bottom: 5%; right: 26%; font-size: 3.5rem; animation-delay: 2.7s; }
+
+/* Login & Register Card */
+body.page-login .card,
+body.page-register .card {
+    border: none;
+    border-radius: 25px;
+    background: #ffffff;
+    box-shadow: 
+        0 20px 50px rgba(0, 0, 0, 0.15), 
+        0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    z-index: 10;
+    transition: transform 0.3s ease;
+}
+
+body.page-login .form-control,
+body.page-register .form-control {
+    border-radius: 10px;
+    padding: 10px 15px;
+}
+
+body.page-login .form-control:focus,
+body.page-register .form-control:focus {
+    border-color: var(--guvi-green);
+    box-shadow: 0 0 0 0.25rem rgba(0, 209, 102, 0.15);
+}
+
+body.page-login .btn-success,
+body.page-register .btn-success {
+    background-color: var(--guvi-green) !important;
+    border: none;
+    padding: 12px;
+    font-weight: bold;
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+body.page-login .btn-success:hover,
+body.page-register .btn-success:hover {
+    background-color: var(--guvi-darker) !important;
+    transform: scale(1.02);
+}
+
+body.page-login .text-guvi,
+body.page-register .text-guvi {
+    color: var(--guvi-darker) !important;
+}
+
+/* Container z-index */
+body.page-login .container,
+body.page-register .container {
+    position: relative;
+    z-index: 10;
+}
+
+/* ===================================
+   PROFILE PAGE
+   =================================== */
+
+body.page-profile {
+    background-color: var(--guvi-dark-green);
+    min-height: 100vh;
+    font-family: 'Lato', 'Segoe UI', Roboto, sans-serif;
+    margin-top: 70px;
+}
+
+/* Fixed Professional Navbar */
+body.page-profile .navbar {
+    background-color: var(--guvi-nav-dark) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    height: 70px;
+}
+
+body.page-profile .navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Logout Button */
+body.page-profile #logoutBtn {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-weight: 800;
+    border: none;
+    padding: 8px 24px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+body.page-profile #logoutBtn:hover {
+    background-color: #f2f2f2 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Profile Card */
+body.page-profile .profile-card {
+    border: none;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+}
+
+body.page-profile .card-title {
+    color: #333;
+    font-weight: 700;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 15px;
+}
+
+body.page-profile .form-label {
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+body.page-profile .form-control {
+    border-radius: 8px;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    background-color: #fdfdfd;
+}
+
+body.page-profile .form-control[readonly] {
+    background-color: #f1f3f5;
+    color: #6c757d;
+}
+
+body.page-profile .form-control:focus {
+    border-color: var(--guvi-green);
+    box-shadow: 0 0 0 0.25rem rgba(0, 209, 102, 0.1);
+}
+
+/* Update Button */
+body.page-profile .btn-update {
+    background-color: var(--guvi-green);
+    border: none;
+    color: white;
+    font-weight: 700;
+    padding: 12px;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+body.page-profile .btn-update:hover {
+    background-color: var(--guvi-dark-green);
+    transform: translateY(-2px);
+}
+
+/* ===================================
+   COMMON STYLES
+   =================================== */
+
+.form-label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.alert {
+    border-radius: 8px;
+    border: none;
+}
+
+.shadow-lg {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+textarea.form-control {
+    resize: vertical;
+}
+
+/* Text utilities */
+.fw-semibold {
+    font-weight: 600;
+}
+
+.fw-bold {
+    font-weight: 700;
+}
+
+.text-decoration-none {
+    text-decoration: none !important;
+}
+
+/* Small text */
+.small {
+    font-size: 0.875rem;
+}

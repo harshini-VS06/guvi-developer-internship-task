@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - GUVI Internship Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="page-register">
+
+    <div class="stationery-frame">
+        <div class="item-wrapper pos-1"><i class="fas fa-book-open item g-1"></i></div>
+        <div class="item-wrapper pos-2"><i class="fas fa-scissors item g-2"></i></div>
+        <div class="item-wrapper pos-3"><i class="fas fa-ruler-horizontal item g-3"></i></div>
+        <div class="item-wrapper pos-4"><i class="fas fa-pencil-alt item g-1"></i></div>
+        <div class="item-wrapper pos-5"><i class="fas fa-highlighter item g-2"></i></div>
+        <div class="item-wrapper pos-6"><i class="fas fa-paperclip item g-3"></i></div>
+        <div class="item-wrapper pos-7"><i class="fas fa-calculator item g-1"></i></div>
+        <div class="item-wrapper pos-8"><i class="fas fa-eraser item g-2"></i></div>
+        <div class="item-wrapper pos-9"><i class="fas fa-graduation-cap item g-3"></i></div>
+        <div class="item-wrapper pos-10"><i class="fas fa-journal-whills item g-1"></i></div>
+        <div class="item-wrapper pos-11"><i class="fas fa-pen-nib item g-2"></i></div>
+        <div class="item-wrapper pos-12"><i class="fas fa-laptop-code item g-3"></i></div>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center align-items-center min-vh-100">
+            <div class="col-md-6 col-lg-5">
+                <div class="card p-2 p-md-4">
+                    <div class="card-body">
+                        <h2 class="text-center mb-4 fw-bold">Create Account</h2>
+                        
+                        <form id="registerForm">
+                            <div class="mb-3">
+                                <label for="username" class="form-label fw-semibold">Username</label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label fw-semibold">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label fw-semibold">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="confirmPassword" class="form-label fw-semibold">Confirm Password</label>
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                            </div>
+
+                            <div id="errorMessage" class="alert alert-danger d-none py-2 small text-center" role="alert"></div>
+                            <div id="successMessage" class="alert alert-success d-none py-2 small text-center" role="alert"></div>
+
+                            <button type="submit" class="btn btn-success w-100 mb-3 shadow-sm">Register</button>
+                            
+                            <div class="text-center">
+                                <p class="mb-0 small">Already have an account? <a href="login.html" class="text-guvi fw-bold text-decoration-none">Login here</a></p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/register.js"></script>
+    <script src="js/mouse-interact.js"></script>
+</body>
+</html>
