@@ -31,20 +31,16 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 }
 
 try {
-    // Get MySQL connection
+    // 1. MYSQL: GET USER DATA
     $conn = getMySQLConnection();
     
-    // Get user from database using prepared statement
     $stmt = $conn->prepare("SELECT id, username, email, password FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
     
     if ($result->num_rows === 0) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Invalid email or password'
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Invalid email or password']);
         $stmt->close();
         $conn->close();
         exit;
@@ -54,20 +50,16 @@ try {
     $stmt->close();
     $conn->close();
     
-    // Verify password
+    // 2. VERIFY PASSWORD
     if (!password_verify($password, $user['password'])) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Invalid email or password'
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Invalid email or password']);
         exit;
     }
     
-    // Generate session token
+    // 3. REDIS: MANAGE SESSION (STRICT INTERNSHIP REQUIREMENT)
     $sessionToken = bin2hex(random_bytes(32));
-    $userId = $user['id'];
+    $userId = (int)$user['id'];
     
-    // Store session in Redis
     $redis = getRedisConnection();
     $sessionKey = "session:" . $sessionToken;
     $sessionData = json_encode([
@@ -77,8 +69,9 @@ try {
         'loginTime' => time()
     ]);
     
-    // Set session in Redis with 24 hour expiration
+    // Store in Redis Cloud with 24-hour expiration (86400 seconds)
     $redis->setex($sessionKey, 86400, $sessionData);
+    $redis->close(); // Clean up the connection
     
     echo json_encode([
         'success' => true,
