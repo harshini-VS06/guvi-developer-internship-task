@@ -53,34 +53,28 @@ try {
     // Get MySQL connection
     $conn = getMySQLConnection();
     
-    // Check if email already exists using prepared statement
+    // Check if email already exists
     $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $result = $stmt->get_result();
     
     if ($result->num_rows > 0) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Email already exists'
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Email already exists']);
         $stmt->close();
         $conn->close();
         exit;
     }
     $stmt->close();
     
-    // Check if username already exists using prepared statement
+    // Check if username already exists
     $stmt = $conn->prepare("SELECT id FROM users WHERE username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
     
     if ($result->num_rows > 0) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Username already exists'
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Username already exists']);
         $stmt->close();
         $conn->close();
         exit;
@@ -90,24 +84,46 @@ try {
     // Hash password
     $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
     
-    // Insert new user using prepared statement
+    // 1. STORE REGISTERED DATA IN MYSQL (STRICT RULE)
     $stmt = $conn->prepare("INSERT INTO users (username, email, password, created_at) VALUES (?, ?, ?, NOW())");
     $stmt->bind_param("sss", $username, $email, $hashedPassword);
     
     if ($stmt->execute()) {
-        echo json_encode([
-            'success' => true,
-            'message' => 'Registration successful! Redirecting to login...'
-        ]);
+        // Get the generated ID to link to MongoDB
+        $userId = $conn->insert_id;
+        $stmt->close();
+        $conn->close();
+
+        // 2. STORE USER PROFILE IN MONGODB (STRICT RULE)
+        try {
+            $mongoDB = getMongoDBConnection();
+            $profiles = $mongoDB->selectCollection('profiles');
+            
+            $profiles->insertOne([
+                'user_id' => $userId, // The link to MySQL
+                'username' => $username,
+                'full_name' => '', // Details to be filled later
+                'bio' => 'Welcome to my profile!',
+                'profile_pic' => 'default.png',
+                'updated_at' => new MongoDB\BSON\UTCDateTime()
+            ]);
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Registration successful! MySQL and MongoDB data synced.'
+            ]);
+        } catch (Exception $mongoEx) {
+            // If MongoDB fails, we notify, but the MySQL account exists
+            echo json_encode([
+                'success' => true,
+                'message' => 'User created, but MongoDB profile failed: ' . $mongoEx->getMessage()
+            ]);
+        }
     } else {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Registration failed. Please try again.'
-        ]);
+        echo json_encode(['success' => false, 'message' => 'MySQL Registration failed.']);
+        $stmt->close();
+        $conn->close();
     }
-    
-    $stmt->close();
-    $conn->close();
     
 } catch (Exception $e) {
     echo json_encode([
