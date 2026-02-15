@@ -35,7 +35,7 @@ Register → Login → Profile
 ## 📁 Project Structure
 
 ```
-GUVI-Internship-Submission/
+internship-project/
 ├── assets/
 │   └── css/
 │       └── style.css          # All styling (login, register, profile)
