@@ -1,6 +1,6 @@
 # Use PHP with Apache
 FROM php:8.1-apache
-
+RUN apt-get update && apt-get install -y ca-certificates openssl && update-ca-certificates
 # 1. Install system dependencies
 RUN apt-get update && apt-get install -y \
     libzip-dev \
@@ -44,3 +44,4 @@ RUN chown -R www-data:www-data /var/www/html && \
 EXPOSE 80
 
 CMD ["apache2-foreground"]
+
