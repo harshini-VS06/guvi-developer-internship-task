@@ -23,45 +23,39 @@ $sessionToken = $input['sessionToken'];
 $userId = $input['userId'];
 
 try {
-    // Verify session from Redis
+    // 1. REDIS: Verify session from Redis Cloud
     $redis = getRedisConnection();
     $sessionKey = "session:" . $sessionToken;
     $sessionData = $redis->get($sessionKey);
     
     if (!$sessionData) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Invalid or expired session'
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Invalid or expired session']);
+        $redis->close();
         exit;
     }
     
     $session = json_decode($sessionData, true);
     
-    // Verify userId matches session
+    // Security check: Verify userId matches the session
     if ($session['userId'] != $userId) {
-        echo json_encode([
-            'success' => false,
-            'message' => 'Unauthorized access'
-        ]);
+        echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
+        $redis->close();
         exit;
     }
     
     // Handle different actions
     switch ($action) {
         case 'verify':
-            echo json_encode([
-                'success' => true,
-                'message' => 'Session valid'
-            ]);
+            echo json_encode(['success' => true, 'message' => 'Session valid']);
             break;
             
         case 'get':
-            // Get profile from MongoDB
+            // 2. MONGODB: Fetch Profile Details (The Strict Rule)
             $mongodb = getMongoDBConnection();
             $collection = $mongodb->profiles;
             
-            $profile = $collection->findOne(['userId' => (int)$userId]);
+            // Note: Using 'user_id' to match our register.php logic
+            $profile = $collection->findOne(['user_id' => (int)$userId]);
             
             if ($profile) {
                 echo json_encode([
@@ -71,75 +65,56 @@ try {
                         'age' => $profile['age'] ?? '',
                         'dob' => $profile['dob'] ?? '',
                         'contact' => $profile['contact'] ?? '',
-                        'address' => $profile['address'] ?? ''
+                        'address' => $profile['address'] ?? '',
+                        'bio' => $profile['bio'] ?? ''
                     ]
                 ]);
             } else {
-                echo json_encode([
-                    'success' => true,
-                    'profile' => null
-                ]);
+                echo json_encode(['success' => true, 'profile' => null]);
             }
             break;
             
         case 'update':
-            // Get profile data from input
-            $fullName = isset($input['fullName']) ? trim($input['fullName']) : '';
-            $age = isset($input['age']) ? (int)$input['age'] : null;
-            $dob = isset($input['dob']) ? trim($input['dob']) : '';
-            $contact = isset($input['contact']) ? trim($input['contact']) : '';
-            $address = isset($input['address']) ? trim($input['address']) : '';
+            // Prepare update data
+            $profileData = [
+                'fullName' => isset($input['fullName']) ? trim($input['fullName']) : '',
+                'age' => isset($input['age']) ? (int)$input['age'] : null,
+                'dob' => isset($input['dob']) ? trim($input['dob']) : '',
+                'contact' => isset($input['contact']) ? trim($input['contact']) : '',
+                'address' => isset($input['address']) ? trim($input['address']) : '',
+                'updated_at' => new MongoDB\BSON\UTCDateTime()
+            ];
             
-            // Update profile in MongoDB
             $mongodb = getMongoDBConnection();
             $collection = $mongodb->profiles;
             
-            $profileData = [
-                'userId' => (int)$userId,
-                'fullName' => $fullName,
-                'age' => $age,
-                'dob' => $dob,
-                'contact' => $contact,
-                'address' => $address,
-                'updatedAt' => new MongoDB\BSON\UTCDateTime()
-            ];
-            
+            // 2. MONGODB: Update or Create Profile Details
             $result = $collection->updateOne(
-                ['userId' => (int)$userId],
+                ['user_id' => (int)$userId],
                 ['$set' => $profileData],
                 ['upsert' => true]
             );
             
-            if ($result->getModifiedCount() > 0 || $result->getUpsertedCount() > 0) {
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'Profile updated successfully!'
-                ]);
-            } else {
-                echo json_encode([
-                    'success' => true,
-                    'message' => 'No changes made to profile'
-                ]);
-            }
+            echo json_encode([
+                'success' => true,
+                'message' => ($result->getModifiedCount() > 0 || $result->getUpsertedCount() > 0) 
+                             ? 'Profile updated successfully!' 
+                             : 'No changes made'
+            ]);
             break;
             
         case 'logout':
-            // Delete session from Redis
+            // 1. REDIS: Delete the session
             $redis->del($sessionKey);
-            
-            echo json_encode([
-                'success' => true,
-                'message' => 'Logged out successfully'
-            ]);
+            echo json_encode(['success' => true, 'message' => 'Logged out successfully']);
             break;
             
         default:
-            echo json_encode([
-                'success' => false,
-                'message' => 'Invalid action'
-            ]);
+            echo json_encode(['success' => false, 'message' => 'Invalid action']);
             break;
     }
+    
+    $redis->close(); // Always close your connections
     
 } catch (Exception $e) {
     echo json_encode([
