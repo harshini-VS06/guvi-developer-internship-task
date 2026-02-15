@@ -30,7 +30,7 @@ WORKDIR /var/www/html
 # Copy project files
 COPY . /var/www/html/
 
-# Install composer dependencies
+# Install composer dependencies if composer.json exists
 RUN if [ -f composer.json ]; then composer install --no-dev --optimize-autoloader; fi
 
 # Set permissions
