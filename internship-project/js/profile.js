@@ -51,7 +51,7 @@ $(document).ready(function() {
         const profileData = {
             action: 'update',
             sessionToken: sessionToken,
-            userId: userId,
+            userId: parseInt(userId),
             fullName: $('#fullName').val().trim(),
             age: $('#age').val(),
             dob: $('#dob').val(),
