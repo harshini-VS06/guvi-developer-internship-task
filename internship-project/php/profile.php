@@ -53,12 +53,11 @@ try {
     $mongodb = getMongoDBConnection();
     $collection = $mongodb->profiles;
     
-    // Use (int) to match your Atlas number format
+    // Cast to (int) to match your Atlas number format
     $profile = $collection->findOne(['user_id' => (int)$userId]);
     
     if ($profile) {
-        // Convert MongoDB Document to a plain PHP Array manually
-        // This prevents the Fatal Error in BSONArray.php
+        // Manually build a clean array to avoid the Fatal Error
         echo json_encode([
             'success' => true,
             'profile' => [
