@@ -55,19 +55,18 @@ try {
             $collection = $mongodb->profiles;
             
             // Note: Using 'user_id' to match our register.php logic
-            $profile = $collection->findOne(['user_id' => $userId]);
+            $profile = $collection->findOne(['user_id' => (int)$userId]);
             
             if ($profile) {
                 echo json_encode([
                     'success' => true,
                     'profile' => [
-                        'fullName' => $profile['fullName'] ?? '',
-                        'age' => $profile['age'] ?? '',
-                        'dob' => $profile['dob'] ?? '',
-                        'contact' => $profile['contact'] ?? '',
-                        'address' => $profile['address'] ?? '',
-                        'bio' => $profile['bio'] ?? ''
-                    ]
+                            'fullName' => $profile['fullName'] ?? $profile['full_name'] ?? '', 
+                            'age'      => $profile['age'] ?? '',
+                            'dob'      => $profile['dob'] ?? '',
+                            'contact'  => $profile['contact'] ?? '',
+                            'address'  => $profile['address'] ?? ''
+                            ]
                 ]);
             } else {
                 echo json_encode(['success' => true, 'profile' => null]);
