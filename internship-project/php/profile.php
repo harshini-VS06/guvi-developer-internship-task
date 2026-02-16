@@ -53,26 +53,27 @@ try {
     $mongodb = getMongoDBConnection();
     $collection = $mongodb->profiles;
     
-    // Use (int) because your screenshot shows user_id is a blue number (integer)
+    // Use (int) to match your Atlas number format
     $profile = $collection->findOne(['user_id' => (int)$userId]);
     
     if ($profile) {
-        // Map whatever is in the DB to the camelCase keys your JS expects
+        // Convert MongoDB Document to a plain PHP Array manually
+        // This prevents the Fatal Error in BSONArray.php
         echo json_encode([
             'success' => true,
             'profile' => [
-                'fullName' => $profile['fullName'] ?? $profile['full_name'] ?? '',
-                'age'      => $profile['age'] ?? '',
-                'dob'      => $profile['dob'] ?? '',
-                'contact'  => $profile['contact'] ?? '',
-                'address'  => $profile['address'] ?? ''
+                'fullName' => (string)($profile['fullName'] ?? $profile['full_name'] ?? ''),
+                'age'      => (int)($profile['age'] ?? 0),
+                'dob'      => (string)($profile['dob'] ?? ''),
+                'contact'  => (string)($profile['contact'] ?? ''),
+                'address'  => (string)($profile['address'] ?? '')
             ]
         ]);
     } else {
         echo json_encode(['success' => true, 'profile' => null]);
     }
     break;
-
+        
     case 'update':
         $profileData = [
             'fullName' => isset($input['fullName']) ? trim($input['fullName']) : '',
