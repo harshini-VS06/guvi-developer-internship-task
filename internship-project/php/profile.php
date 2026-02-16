@@ -49,17 +49,24 @@ try {
             echo json_encode(['success' => true, 'message' => 'Session valid']);
             break;
             
-       case 'get':
+    case 'get':
     $mongodb = getMongoDBConnection();
     $collection = $mongodb->profiles;
     
-    // Convert to (int) because your MongoDB screenshot shows it as a number
+    // Use (int) because your screenshot shows user_id is a blue number (integer)
     $profile = $collection->findOne(['user_id' => (int)$userId]);
     
     if ($profile) {
+        // Map whatever is in the DB to the camelCase keys your JS expects
         echo json_encode([
             'success' => true,
-            'profile' => $profile // Sending the whole object is safer
+            'profile' => [
+                'fullName' => $profile['fullName'] ?? $profile['full_name'] ?? '',
+                'age'      => $profile['age'] ?? '',
+                'dob'      => $profile['dob'] ?? '',
+                'contact'  => $profile['contact'] ?? '',
+                'address'  => $profile['address'] ?? ''
+            ]
         ]);
     } else {
         echo json_encode(['success' => true, 'profile' => null]);
