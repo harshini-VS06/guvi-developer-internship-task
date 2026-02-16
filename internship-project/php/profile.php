@@ -55,7 +55,7 @@ try {
             $collection = $mongodb->profiles;
             
             // Note: Using 'user_id' to match our register.php logic
-            $profile = $collection->findOne(['user_id' => (int)$userId]);
+            $profile = $collection->findOne(['user_id' => $userId]);
             
             if ($profile) {
                 echo json_encode([
@@ -90,7 +90,7 @@ try {
             
             // 2. MONGODB: Update or Create Profile Details
             $result = $collection->updateOne(
-                ['user_id' => (int)$userId],
+                ['user_id' => $userId],
                 ['$set' => $profileData],
                 ['upsert' => true]
             );
