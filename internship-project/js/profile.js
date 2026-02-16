@@ -34,6 +34,8 @@ $(document).ready(function() {
                     $('#dob').val(p.dob || '');
                     $('#contact').val(p.contact || '');
                     $('#address').val(p.address || '');
+                } else{
+                    console.log("No profile found for this ID");
                 }
             }
         });
