@@ -12,30 +12,24 @@ $(document).ready(function() {
 
     // --- 2. Load Data from Databases ---
     function loadData() {
-        // From MySQL/LocalStorage
-        $('#username').val(localStorage.getItem('username'));
-        $('#email').val(localStorage.getItem('email'));
+    $('#username').val(localStorage.getItem('username'));
+    $('#email').val(localStorage.getItem('email'));
 
-        // From MongoDB
-        $.ajax({
-            url: 'php/profile.php',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                action: 'get',
-                sessionToken: sessionToken,
-                userId: userId
-            }),
-            success: function(response) {
-                if (response.success && response.profile) {
-                    const p = response.profile;
-                    $('#fullName').val(p.fullName || '');
-                    $('#age').val(p.age || '');
-                    $('#dob').val(p.dob || '');
-                    $('#contact').val(p.contact || '');
-                    $('#address').val(p.address || '');
-                } else{
-                    console.log("No profile found for this ID");
+    $.ajax({
+        url: 'php/profile.php',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ action: 'get', sessionToken, userId }),
+        success: function(res) {
+            console.log("MongoDB Raw Data:", res); // Check this in your browser console!
+            if (res.success && res.profile) {
+                const p = res.profile;
+                // Handle both MongoDB naming styles
+                $('#fullName').val(p.fullName || p.full_name || '');
+                $('#age').val(p.age || '');
+                $('#dob').val(p.dob || '');
+                $('#contact').val(p.contact || '');
+                $('#address').val(p.address || '');
                 }
             }
         });
