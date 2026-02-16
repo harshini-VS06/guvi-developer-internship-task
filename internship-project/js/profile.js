@@ -1,5 +1,4 @@
 $(document).ready(function() {
-    // 1. Initial Identity & Session Check
     const sessionToken = localStorage.getItem('sessionToken');
     const userId = localStorage.getItem('userId');
     
@@ -8,43 +7,16 @@ $(document).ready(function() {
         return;
     }
 
-    // --- State Management: Start in "Read-Only" mode ---
-    let isEditMode = false;
-    setFieldsDisabled(true);
+    // --- 1. Initial State: Read-Only ---
+    setReadOnly(true);
 
-    // 2. Verify session & Load Data
-    verifySession();
-    loadUserData();
-
-    // 3. Handle Submit Button (Toggles between Edit and Save)
-    $('#profileForm').on('submit', function(e) {
-        e.preventDefault();
-        
-        if (!isEditMode) {
-            // Switch to Edit Mode
-            isEditMode = true;
-            setFieldsDisabled(false);
-            $('.btn-update').html('<i class="fas fa-check me-2"></i>CONFIRM AND SAVE CHANGES');
-            $('.btn-update').addClass('btn-success').removeClass('btn-primary');
-        } else {
-            // Perform the Update
-            updateProfile();
-        }
-    });
-
-    // 4. Logout Handler
-    $('#logoutBtn').on('click', function() {
-        logout();
-    });
-
-    // --- CORE FUNCTIONS ---
-
-    function loadUserData() {
-        // MySQL Data (Static identity)
+    // --- 2. Load Data from Databases ---
+    function loadData() {
+        // From MySQL/LocalStorage
         $('#username').val(localStorage.getItem('username'));
         $('#email').val(localStorage.getItem('email'));
-        
-        // MongoDB Data (Dynamic profile)
+
+        // From MongoDB
         $.ajax({
             url: 'php/profile.php',
             type: 'POST',
@@ -67,22 +39,29 @@ $(document).ready(function() {
         });
     }
 
-    function updateProfile() {
+    loadData();
+
+    // --- 3. Toggle Edit Mode ---
+    $('#editTrigger').on('click', function() {
+        setReadOnly(false);
+        $(this).addClass('d-none'); // Hide Edit button
+        $('#saveBtn').removeClass('d-none'); // Show Save button
+    });
+
+    // --- 4. Handle Form Submission (Save) ---
+    $('#profileForm').on('submit', function(e) {
+        e.preventDefault();
+
         const profileData = {
             action: 'update',
             sessionToken: sessionToken,
             userId: userId,
             fullName: $('#fullName').val().trim(),
             age: $('#age').val(),
-            dob: $('#dob').val().trim(),
+            dob: $('#dob').val(),
             contact: $('#contact').val().trim(),
             address: $('#address').val().trim()
         };
-
-        // Reuse your existing validation logic here
-        if (profileData.age && (profileData.age < 1 || profileData.age > 120)) {
-            showError('Please enter a valid age'); return;
-        }
 
         $.ajax({
             url: 'php/profile.php',
@@ -92,49 +71,34 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     showSuccess("Profile updated permanently in MongoDB!");
-                    // Reset to Read-Only mode
-                    isEditMode = false;
-                    setFieldsDisabled(true);
-                    $('.btn-update').html('<i class="fas fa-save me-2"></i>UPDATE PROFILE INFORMATION');
-                    $('.btn-update').addClass('btn-primary').removeClass('btn-success');
+                    // Return to Read-Only Mode
+                    setReadOnly(true);
+                    $('#saveBtn').addClass('d-none');
+                    $('#editTrigger').removeClass('d-none');
                 } else {
                     showError(response.message);
                 }
             }
         });
+    });
+
+    // --- Helper Functions ---
+    function setReadOnly(status) {
+        // We use readonly so the text remains clear but uneditable
+        $('.profile-input').prop('readonly', status);
+        // Visual feedback
+        if(status) {
+            $('.profile-input').css('background-color', '#f8f9fa');
+        } else {
+            $('.profile-input').css('background-color', '#ffffff').first().focus();
+        }
     }
 
-    // --- UTILS ---
+    $('#logoutBtn').on('click', function() {
+        localStorage.clear();
+        window.location.href = 'login.html';
+    });
 
-    function setFieldsDisabled(status) {
-        // Note: username and email are ALWAYS readonly as they come from MySQL
-        $('#fullName, #age, #dob, #contact, #address').prop('disabled', status);
-    }
-
-    function verifySession() {
-        $.ajax({
-            url: 'php/profile.php',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ action: 'verify', sessionToken, userId }),
-            success: function(res) { if (!res.success) logout(); },
-            error: function() { logout(); }
-        });
-    }
-
-    function logout() {
-        $.ajax({
-            url: 'php/profile.php',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ action: 'logout', sessionToken, userId }),
-            complete: function() {
-                localStorage.clear();
-                window.location.href = 'login.html';
-            }
-        });
-    }
-
-    function showError(m) { $('#errorMessage').text(m).removeClass('d-none'); }
-    function showSuccess(m) { $('#successMessage').text(m).removeClass('d-none'); }
+    function showError(m) { $('#errorMessage').text(m).removeClass('d-none'); setTimeout(() => $('#errorMessage').addClass('d-none'), 3000); }
+    function showSuccess(m) { $('#successMessage').text(m).removeClass('d-none'); setTimeout(() => $('#successMessage').addClass('d-none'), 3000); }
 });
