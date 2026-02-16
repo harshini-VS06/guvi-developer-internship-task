@@ -49,57 +49,43 @@ try {
             echo json_encode(['success' => true, 'message' => 'Session valid']);
             break;
             
-        case 'get':
-            // 2. MONGODB: Fetch Profile Details (The Strict Rule)
+       case 'get':
+    $mongodb = getMongoDBConnection();
+    $collection = $mongodb->profiles;
+    
+    // Convert to (int) because your MongoDB screenshot shows it as a number
+    $profile = $collection->findOne(['user_id' => (int)$userId]);
+    
+    if ($profile) {
+        echo json_encode([
+            'success' => true,
+            'profile' => $profile // Sending the whole object is safer
+        ]);
+    } else {
+        echo json_encode(['success' => true, 'profile' => null]);
+    }
+    break;
+
+    case 'update':
+        $profileData = [
+            'fullName' => isset($input['fullName']) ? trim($input['fullName']) : '',
+            'age' => isset($input['age']) ? (int)$input['age'] : null,
+            'dob' => isset($input['dob']) ? trim($input['dob']) : '',
+            'contact' => isset($input['contact']) ? trim($input['contact']) : '',
+            'address' => isset($input['address']) ? trim($input['address']) : '',
+            'updated_at' => new MongoDB\BSON\UTCDateTime()
+        ];
+    
             $mongodb = getMongoDBConnection();
             $collection = $mongodb->profiles;
-            
-            // Note: Using 'user_id' to match our register.php logic
-            $profile = $collection->findOne(['user_id' => (int)$userId]);
-            
-            if ($profile) {
-                echo json_encode([
-                    'success' => true,
-                    'profile' => [
-                            'fullName' => $profile['fullName'] ?? $profile['full_name'] ?? '', 
-                            'age'      => $profile['age'] ?? '',
-                            'dob'      => $profile['dob'] ?? '',
-                            'contact'  => $profile['contact'] ?? '',
-                            'address'  => $profile['address'] ?? ''
-                            ]
-                ]);
-            } else {
-                echo json_encode(['success' => true, 'profile' => null]);
-            }
-            break;
-            
-        case 'update':
-            // Prepare update data
-            $profileData = [
-                'fullName' => isset($input['fullName']) ? trim($input['fullName']) : '',
-                'age' => isset($input['age']) ? (int)$input['age'] : null,
-                'dob' => isset($input['dob']) ? trim($input['dob']) : '',
-                'contact' => isset($input['contact']) ? trim($input['contact']) : '',
-                'address' => isset($input['address']) ? trim($input['address']) : '',
-                'updated_at' => new MongoDB\BSON\UTCDateTime()
-            ];
-            
-            $mongodb = getMongoDBConnection();
-            $collection = $mongodb->profiles;
-            
-            // 2. MONGODB: Update or Create Profile Details
-            $result = $collection->updateOne(
-                ['user_id' => $userId],
-                ['$set' => $profileData],
-                ['upsert' => true]
-            );
-            
-            echo json_encode([
-                'success' => true,
-                'message' => ($result->getModifiedCount() > 0 || $result->getUpsertedCount() > 0) 
-                             ? 'Profile updated successfully!' 
-                             : 'No changes made'
-            ]);
+    
+        $result = $collection->updateOne(
+            ['user_id' => (int)$userId], // Ensure this is (int)
+            ['$set' => $profileData],
+            ['upsert' => true]
+        );
+    
+            echo json_encode(['success' => true, 'message' => 'Profile updated!']);
             break;
             
         case 'logout':
