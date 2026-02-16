@@ -49,24 +49,27 @@ try {
             echo json_encode(['success' => true, 'message' => 'Session valid']);
             break;
             
-    case 'get':
+   case 'get':
     $mongodb = getMongoDBConnection();
     $collection = $mongodb->profiles;
     
-    // Cast to (int) to match your Atlas number format
+    // Explicitly cast to integer to match your Atlas data type
     $profile = $collection->findOne(['user_id' => (int)$userId]);
     
     if ($profile) {
-        // Manually build a clean array to avoid the Fatal Error
+        // We do NOT return $profile. We build a completely NEW array 
+        // using only basic strings and numbers to bypass the BSONArray bug.
+        $cleanProfile = [
+            'fullName' => isset($profile['fullName']) ? (string)$profile['fullName'] : (isset($profile['full_name']) ? (string)$profile['full_name'] : ''),
+            'age'      => isset($profile['age'])      ? (int)$profile['age']      : 0,
+            'dob'      => isset($profile['dob'])      ? (string)$profile['dob']      : '',
+            'contact'  => isset($profile['contact'])  ? (string)$profile['contact']  : '',
+            'address'  => isset($profile['address'])  ? (string)$profile['address']  : ''
+        ];
+
         echo json_encode([
             'success' => true,
-            'profile' => [
-                'fullName' => (string)($profile['fullName'] ?? $profile['full_name'] ?? ''),
-                'age'      => (int)($profile['age'] ?? 0),
-                'dob'      => (string)($profile['dob'] ?? ''),
-                'contact'  => (string)($profile['contact'] ?? ''),
-                'address'  => (string)($profile['address'] ?? '')
-            ]
+            'profile' => $cleanProfile
         ]);
     } else {
         echo json_encode(['success' => true, 'profile' => null]);
